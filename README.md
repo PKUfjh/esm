@@ -1,3 +1,55 @@
+# Quick start
+
+## Installation
+```bash
+conda create -n esmfold python=3.9
+conda activate esmfold
+pip install fair-esm
+pip install "fair-esm[esmfold]"
+module load cuda/12.1
+module load gcc/11.2
+export CC=/data/apps/gcc/11.2.0/bin/gcc
+export CXX=/data/apps/gcc/11.2.0/bin/g++
+pip install 'dllogger @ git+ssh://git@github.com/NVIDIA/dllogger.git'
+# ssh to compute node
+git clone git@github.com:aqlaboratory/openfold.git
+cd openfold
+git checkout 4b41059694619831a7db195b7e0988fc4ff3a307
+pip install .
+```
+
+## troubleshooting
+```bash
+ImportError: /lib64/libstdc++.so.6: version GLIBCXX_3.4.29' not found (required by /data/run01/scw6ciu/apps/miniforge3/envs/esmfold/lib/python3.9/site-packages/attn_core_inplace_cuda.cpython-39-x86_64-linux-gnu.so)
+
+conda install -c conda-forge libstdcxx-ng
+```
+
+```bash
+error: #error C++17 or later compatible compiler is required to use PyTorch.
+
+extra_compile_args={
+    'cxx': ['-O3', '-std=c++17'] + version_dependent_macros,
+    'nvcc': (
+        ['-O3', '--use_fast_math', '-std=c++17'] +
+        version_dependent_macros +
+        extra_cuda_flags
+    ),
+}
+```
+
+
+## Run
+```bash
+# in /site-packages/deepspeed/runtime/utils.py, change from torch._six import inf -> from torch import inf
+# in /site-packages/deepspeed/runtime/zero/stage_1_and_2.py, from torch._six import inf -> from torch import inf
+pip install numpy==1.26.4 # fix numpy version
+pip install pytorch-lightning==1.8.4 # fix pytorch-lightning version
+cd examples
+# first connect to login node, download the checkpoint, then run again in compute node
+python esmfold_predict.py
+```
+
 # Evolutionary Scale Modeling
 
 [![atlas](https://user-images.githubusercontent.com/3605224/199301187-a9e38b3f-71a7-44be-94f4-db0d66143c53.png)](https://esmatlas.com)
